@@ -25,6 +25,10 @@ jobs:
     # Runner provided by GitHub
     runs-on: ubuntu-latest
 
+    defaults:
+	run:
+	 working-directory: app
+
     steps:
 
       # Download repository source code
