@@ -87,3 +87,49 @@ output "node_group_role_name" {
   value = module.iam.node_group_role_name
 
 }
+
+############################################################
+# Amazon EKS Outputs
+############################################################
+
+output "cluster_name" {
+
+  value = module.eks.cluster_name
+
+}
+
+output "cluster_endpoint" {
+
+  value = module.eks.cluster_endpoint
+
+}
+
+output "cluster_version" {
+
+  value = module.eks.cluster_version
+
+}
+
+output "cluster_oidc_issuer_url" {
+
+  value = module.eks.cluster_oidc_issuer_url
+
+}
+
+output "cluster_security_group_id" {
+
+  value = module.eks.cluster_security_group_id
+
+}
+
+output "worker_security_group_id" {
+
+  value = module.eks.worker_security_group_id
+
+}
+
+output "node_group_name" {
+
+  value = module.eks.node_group_name
+
+}
