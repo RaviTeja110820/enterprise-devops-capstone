@@ -380,3 +380,28 @@ variable "additional_tags" {
   type = map(string)
 
 }
+
+
+############################################################
+# CloudWatch Alarm Email
+############################################################
+variable "alarm_email" {
+
+  description = "CloudWatch Alert Email"
+
+  type = string
+
+}
+
+############################################################
+# CPU Threshold
+############################################################
+variable "cpu_threshold" {
+
+  description = "CloudWatch CPU Threshold"
+
+  type = number
+
+  default = 80
+
+}

@@ -116,9 +116,24 @@ module "eks" {
 
 
 
-# CloudWatch Module (Will be completed later)
+############################################################
+# CloudWatch Module
+############################################################
+
 module "cloudwatch" {
 
   source = "./cloudwatch"
+
+  project_name = var.project_name
+
+  environment = var.environment
+
+  cluster_name = var.cluster_name
+
+  alarm_email = var.alarm_email
+
+  cpu_threshold = var.cpu_threshold
+
+  additional_tags = var.additional_tags
 
 }

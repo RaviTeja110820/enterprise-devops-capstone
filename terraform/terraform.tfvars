@@ -141,3 +141,11 @@ additional_tags = {
   Project = "enterprise-devops"
 
 }
+
+############################################################
+# CloudWatch
+############################################################
+
+alarm_email = "ravitejabodla1108@gmail.com"
+
+cpu_threshold = 80

@@ -133,3 +133,25 @@ output "node_group_name" {
   value = module.eks.node_group_name
 
 }
+
+############################################################
+# CloudWatch Outputs
+############################################################
+
+output "cloudwatch_dashboard" {
+
+  value = module.cloudwatch.dashboard_name
+
+}
+
+output "cloudwatch_sns_topic" {
+
+  value = module.cloudwatch.sns_topic_arn
+
+}
+
+output "cpu_alarm" {
+
+  value = module.cloudwatch.cpu_alarm_name
+
+}
