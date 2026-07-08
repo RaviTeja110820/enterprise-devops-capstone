@@ -57,7 +57,7 @@ kubernetes_version = "1.30"
 node_group_name = "enterprise-node-group"
 
 instance_types = [
-  "t3.medium"
+  "t3.small"
 ]
 
 ami_type = "AL2023_x86_64_STANDARD"
