@@ -149,3 +149,11 @@ additional_tags = {
 alarm_email = "ravitejabodla1108@gmail.com"
 
 cpu_threshold = 80
+
+############################################################
+# Database Credentials
+############################################################
+
+db_username = "admin"
+
+db_password = "ChangeMe123!"

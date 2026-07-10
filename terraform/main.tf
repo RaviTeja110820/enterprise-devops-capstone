@@ -137,3 +137,23 @@ module "cloudwatch" {
   additional_tags = var.additional_tags
 
 }
+
+############################################################
+# Secrets Module
+############################################################
+
+module "secrets" {
+
+  source = "./secrets"
+
+  project_name = var.project_name
+
+  environment = var.environment
+
+  db_username = var.db_username
+
+  db_password = var.db_password
+
+  additional_tags = var.additional_tags
+
+}
