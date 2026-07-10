@@ -171,3 +171,9 @@ output "database_secret_name" {
   value = module.secrets.secret_name
 
 }
+
+output "external_secrets_role" {
+
+  value = module.iam.external_secrets_role_arn
+
+}

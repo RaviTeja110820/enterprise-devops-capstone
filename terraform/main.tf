@@ -49,6 +49,10 @@ module "iam" {
   aws_region = var.aws_region
 
   aws_account_id = var.aws_account_id
+  
+  oidc_provider_arn = module.eks.oidc_provider_arn
+
+  oidc_provider_url = module.eks.oidc_provider_url
 
 }
 

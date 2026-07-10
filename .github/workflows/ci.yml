@@ -9,7 +9,7 @@ on:
 
     # Only for these branches
     branches:
-      - develop
+      - feature/secrets
       - main
 
   # Trigger when Pull Request is created

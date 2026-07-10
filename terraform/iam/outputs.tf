@@ -63,3 +63,13 @@ output "node_group_role_id" {
   value = aws_iam_role.node_group_role.id
 
 }
+
+############################################################
+# External Secrets Role ARN
+############################################################
+
+output "external_secrets_role_arn" {
+
+  value = aws_iam_role.external_secrets_role.arn
+
+}

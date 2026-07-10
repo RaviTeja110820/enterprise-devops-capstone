@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+
+kind: Deployment
+
+metadata:
+
+  name: enterprise-app
+
+spec:
+
+  replicas: 2
+
+  selector:
+
+    matchLabels:
+
+      app: enterprise
+
+  template:
+
+    metadata:
+
+      labels:
+
+        app: enterprise
+
+    spec:
+
+      containers:
+
+      - name: app
+
+        image: <YOUR_ECR_IMAGE>
+
+        env:
+
+        - name: DB_USERNAME
+
+          valueFrom:
+
+            secretKeyRef:
+
+              name: app-secret
+
+              key: username
+
+        - name: DB_PASSWORD
+
+          valueFrom:
+
+            secretKeyRef:
+
+              name: app-secret
+
+              key: password
