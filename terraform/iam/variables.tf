@@ -91,26 +91,3 @@ variable "oidc_provider_arn" {
 
 }
 
-############################################################
-# OIDC Provider ARN
-############################################################
-
-variable "oidc_provider_arn" {
-
-  description = "OIDC Provider ARN"
-
-  type = string
-
-}
-
-############################################################
-# OIDC Provider URL
-############################################################
-
-variable "oidc_provider_url" {
-
-  description = "OIDC Provider URL"
-
-  type = string
-
-}
