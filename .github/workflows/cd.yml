@@ -1,3 +1,5 @@
+# .github/workflows/cd.yml
+
 name: Continuous Delivery
 
 on:
@@ -8,14 +10,53 @@ on:
       - completed
 
 jobs:
-  debug:
+  deploy:
+    # Run only if the CI workflow completed successfully
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: app
+
     steps:
-      - name: Print workflow_run details
+      # Checkout source code
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Configure AWS Credentials
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # Login to Amazon ECR
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # Build Docker Image
+      - name: Build Docker Image
         run: |
-          echo "Workflow Name: ${{ github.event.workflow_run.name }}"
-          echo "Conclusion: ${{ github.event.workflow_run.conclusion }}"
-          echo "Head Branch: ${{ github.event.workflow_run.head_branch }}"
-          echo "Head SHA: ${{ github.event.workflow_run.head_sha }}"
-          echo "Repository: ${{ github.repository }}"
+          docker build -t enterprise-devops-capstone:${{ github.sha }} .
+
+      # Tag Docker Image
+      - name: Tag Docker Image
+        run: |
+          docker tag enterprise-devops-capstone:${{ github.sha }} \
+          ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
+
+      # Push Docker Image
+      - name: Push Docker Image
+        run: |
+          docker push \
+          ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
+
+      # Deployment Placeholder
+      - name: Deployment Status
+        run: |
+          echo "Docker image pushed successfully."
+          echo "Deployment to Amazon EKS will be added in Phase 3."
