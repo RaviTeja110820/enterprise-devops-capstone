@@ -14,7 +14,7 @@ jobs:
     if: >
       ${{
         github.event.workflow_run.conclusion == 'success' &&
-        github.event.workflow_run.head_branch == 'feature/secrets'
+        github.event.workflow_run.head_branch == 'feature/kubernetes'
       }}
 
     runs-on: ubuntu-latest

@@ -9,7 +9,7 @@ on:
 
     # Only for these branches
     branches:
-      - feature/secrets
+      - feature/kubernetes
       - main
 
   # Trigger when Pull Request is created
