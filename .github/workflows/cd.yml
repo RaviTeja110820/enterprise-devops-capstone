@@ -11,11 +11,11 @@ on:
 
 jobs:
   deploy:
-    # Run only if the CI workflow completed successfully
+    # Run only if CI completed successfully
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     runs-on: ubuntu-latest
-    
+
     steps:
       # Checkout Repository
       - name: Checkout Repository
@@ -52,12 +52,6 @@ jobs:
           docker push \
             ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
 
-      # Deployment Status
-      - name: Deployment Status
-        run: |
-          echo "Docker image pushed successfully."
-          echo "Starting deployment to Amazon EKS..."
-
       # Update kubeconfig
       - name: Update kubeconfig
         run: |
@@ -65,12 +59,33 @@ jobs:
             --region ${{ secrets.AWS_REGION }} \
             --name enterprise-eks
 
-      # Deploy to Amazon EKS
-      - name: Deploy to EKS
+      # Verify Cluster
+      - name: Verify Cluster
         run: |
-          kubectl apply -f kubernetes/
+          kubectl config current-context
+          kubectl get nodes
 
-      # Verify Deployment Rollout
+      # Create Namespace
+      - name: Create Namespace
+        run: |
+          kubectl apply -f kubernetes/namespace.yaml
+
+      # Wait for Namespace
+      - name: Wait for Namespace
+        run: |
+          kubectl wait --for=jsonpath='{.status.phase}'=Active namespace/enterprise --timeout=30s
+
+      # Deploy Application
+      - name: Deploy Application
+        run: |
+          kubectl apply -f kubernetes/deployment.yaml
+
+      # Create Service
+      - name: Create Service
+        run: |
+          kubectl apply -f kubernetes/service.yaml
+
+      # Verify Rollout
       - name: Verify Rollout
         run: |
           kubectl rollout status deployment/enterprise-app -n enterprise
