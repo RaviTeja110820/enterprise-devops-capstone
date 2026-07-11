@@ -71,3 +71,41 @@ variable "additional_tags" {
   default = {}
 
 }
+
+############################################################
+# Memory Threshold
+############################################################
+
+variable "memory_threshold" {
+
+  description = "Memory Alarm Threshold"
+
+  type = number
+
+  default = 80
+
+}
+
+############################################################
+# AWS Region
+############################################################
+
+variable "aws_region" {
+
+  description = "AWS Region"
+
+  type = string
+
+}
+
+############################################################
+# Node Group Name
+############################################################
+
+variable "node_group_name" {
+
+  description = "Amazon EKS Node Group Name"
+
+  type = string
+
+}

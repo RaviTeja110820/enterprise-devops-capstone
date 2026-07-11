@@ -138,6 +138,12 @@ module "cloudwatch" {
 
   cpu_threshold = var.cpu_threshold
 
+  memory_threshold = var.memory_threshold
+
+  aws_region = var.aws_region
+
+  node_group_name = var.node_group_name
+
   additional_tags = var.additional_tags
 
 }

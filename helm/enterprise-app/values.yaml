@@ -1,0 +1,71 @@
+#################################################
+# Replica Count
+#################################################
+
+replicaCount: 2
+
+#################################################
+# Docker Image
+#################################################
+
+image:
+
+  repository: 705557196379.dkr.ecr.ap-south-2.amazonaws.com/enterprise-devops-capstone
+
+  tag: latest
+
+  pullPolicy: Always
+
+#################################################
+# Service
+#################################################
+
+service:
+
+  type: ClusterIP
+
+  port: 3000
+
+#################################################
+# Container Port
+#################################################
+
+containerPort: 3000
+
+#################################################
+# Resources
+#################################################
+
+resources:
+
+  requests:
+
+    cpu: "250m"
+
+    memory: "256Mi"
+
+  limits:
+
+    cpu: "500m"
+
+    memory: "512Mi"
+
+#################################################
+# Health Checks
+#################################################
+
+readinessProbe:
+
+  path: /
+
+  initialDelaySeconds: 10
+
+  periodSeconds: 10
+
+livenessProbe:
+
+  path: /
+
+  initialDelaySeconds: 20
+
+  periodSeconds: 20

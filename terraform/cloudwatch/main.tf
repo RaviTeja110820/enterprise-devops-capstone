@@ -58,7 +58,39 @@ resource "aws_cloudwatch_dashboard" "eks_dashboard" {
 
   dashboard_body = jsonencode({
 
-    widgets = []
+    widgets = [
+
+      {
+        type   = "metric"
+        x      = 0
+        y      = 0
+        width  = 12
+        height = 6
+
+        properties = {
+
+          title  = "Node CPU Utilization"
+
+          region = var.aws_region
+
+          view   = "timeSeries"
+
+          metrics = [
+
+            [
+              "AWS/EC2",
+              "CPUUtilization",
+              "AutoScalingGroupName",
+              var.node_group_name
+            ]
+
+          ]
+
+        }
+
+      }
+
+    ]
 
   })
 
@@ -85,6 +117,38 @@ resource "aws_cloudwatch_metric_alarm" "cpu_alarm" {
   statistic = "Average"
 
   threshold = var.cpu_threshold
+
+  alarm_actions = [
+
+    aws_sns_topic.eks_alerts.arn
+
+  ]
+
+}
+
+############################################################
+# Memory Alarm
+############################################################
+
+resource "aws_cloudwatch_metric_alarm" "memory_alarm" {
+
+  alarm_name = "${var.cluster_name}-HighMemory"
+
+  comparison_operator = "GreaterThanThreshold"
+
+  evaluation_periods = 2
+
+  metric_name = "mem_used_percent"
+
+  namespace = "CWAgent"
+
+  period = 300
+
+  statistic = "Average"
+
+  threshold = var.memory_threshold
+
+  alarm_description = "High Memory Usage"
 
   alarm_actions = [
 

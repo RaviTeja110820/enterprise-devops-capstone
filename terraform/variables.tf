@@ -427,3 +427,17 @@ variable "db_password" {
   sensitive = true
 
 }
+
+############################################################
+# Memory Threshold
+############################################################
+
+variable "memory_threshold" {
+
+  description = "Memory Alarm Threshold"
+
+  type = number
+
+  default = 80
+
+}

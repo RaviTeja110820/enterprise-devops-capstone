@@ -157,3 +157,9 @@ cpu_threshold = 80
 db_username = "admin"
 
 db_password = "ChangeMe123!"
+
+############################################################
+# Memory Alarm Threshold
+############################################################
+
+memory_threshold = 80
