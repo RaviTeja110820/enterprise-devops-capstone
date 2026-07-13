@@ -1,66 +1,181 @@
-# Name of the GitHub Actions workflow
+# ==========================================================
+# GitHub Actions - Continuous Integration
+# ==========================================================
+
 name: Continuous Integration
 
-# Trigger conditions
+# ==========================================================
+# Workflow Triggers
+# ==========================================================
+
 on:
 
-  # Trigger when code is pushed
   push:
 
-    # Only for these branches
     branches:
+
       - feature/kubernetes
       - main
 
-  # Trigger when Pull Request is created
   pull_request:
 
     branches:
+
       - develop
+
+# ==========================================================
+# Jobs
+# ==========================================================
 
 jobs:
 
   build:
 
-    # Runner provided by GitHub
+    name: Build, Test & Security Scan
+
     runs-on: ubuntu-latest
 
     defaults:
       run:
-       working-directory: app
+        working-directory: app
 
     steps:
 
-      # Download repository source code
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+    #########################################################
+    # Checkout Repository
+    #########################################################
 
-      # Install NodeJS
-      - name: Setup NodeJS
-        uses: actions/setup-node@v4
+    - name: Checkout Repository
+      uses: actions/checkout@v4
 
-        with:
+    #########################################################
+    # Setup NodeJS
+    #########################################################
 
-          node-version: 20
+    - name: Setup NodeJS
+      uses: actions/setup-node@v4
 
-      # Install dependencies
-      - name: Install Packages
+      with:
+        node-version: 20
+        cache: npm
+        cache-dependency-path: app/package-lock.json
 
-        run: npm install
+    #########################################################
+    # Install Dependencies
+    #########################################################
 
-      # Run unit tests
-      - name: Run Tests
+    - name: Install Packages
+      run: npm install
 
-        run: npm test
+    #########################################################
+    # Run Tests with Coverage
+    #########################################################
 
-      # Build application
-      - name: Build Application
+    - name: Run Tests
 
-        run: npm run build
+      run: npm run test:coverage
 
-      # Upload application as an artifact
-      - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: application
-          path: app/
+    #########################################################
+    # Build Application
+    #########################################################
+
+    - name: Build Application
+
+      run: npm run build
+
+    #########################################################
+    # Dependency Scan
+    #########################################################
+
+    - name: NPM Audit
+
+      run: npm audit
+
+    #########################################################
+    # SonarCloud Scan
+    #########################################################
+
+    - name: SonarCloud Scan
+
+      uses: SonarSource/sonarqube-scan-action@v5
+
+      env:
+
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      with:
+
+        args: >
+          -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
+          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+          -Dsonar.sources=.
+          -Dsonar.tests=.
+          -Dsonar.test.inclusions=**/*.test.js
+          -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+          -Dsonar.sourceEncoding=UTF-8
+
+    #########################################################
+    # Trivy Filesystem Scan
+    #########################################################
+
+    - name: Trivy Filesystem Scan
+
+      uses: aquasecurity/trivy-action@0.33.1
+
+      with:
+
+        scan-type: fs
+        scan-ref: app
+
+        format: table
+
+        severity: HIGH,CRITICAL
+
+        ignore-unfixed: true
+
+        exit-code: "1"
+
+    #########################################################
+    # Build Docker Image
+    #########################################################
+
+    - name: Build Docker Image
+
+      run: |
+
+        docker build \
+          -t enterprise-devops-capstone:${{ github.sha }} .
+
+    #########################################################
+    # Trivy Docker Image Scan
+    #########################################################
+
+    - name: Trivy Docker Image Scan
+
+      uses: aquasecurity/trivy-action@0.33.1
+
+      with:
+
+        image-ref: enterprise-devops-capstone:${{ github.sha }}
+
+        format: table
+
+        severity: HIGH,CRITICAL
+
+        ignore-unfixed: true
+
+        exit-code: "1"
+
+    #########################################################
+    # Upload Build Artifact
+    #########################################################
+
+    - name: Upload Build Artifact
+
+      uses: actions/upload-artifact@v4
+
+      with:
+
+        name: application
+
+        path: app/

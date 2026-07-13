@@ -7,6 +7,7 @@
   "scripts": {
     "start": "node server.js",
     "test": "jest",
+    "test:coverage": "jest --coverage",
     "build": "echo Build Successful"
   },
   "keywords": [],
