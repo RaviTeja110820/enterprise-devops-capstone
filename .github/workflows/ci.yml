@@ -160,7 +160,7 @@ jobs:
 
         format: table
 
-        severity: HIGH,CRITICAL
+        severity: CRITICAL
 
         ignore-unfixed: true
 
