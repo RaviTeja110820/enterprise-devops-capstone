@@ -65,7 +65,7 @@ jobs:
     #########################################################
 
     - name: Install Packages
-      run: npm install
+      run: npm instal
 
     #########################################################
     # Run Tests with Coverage
