@@ -1,3 +1,5 @@
+# .github/workflows/cd.yml
+
 name: Continuous Delivery
 
 on:
@@ -8,23 +10,13 @@ on:
       - completed
 
 jobs:
-
   deploy:
-
-    if: >
-      ${{
-        github.event.workflow_run.conclusion == 'success' &&
-        github.event.workflow_run.head_branch == 'main'
-      }}
+    # Run only if CI completed successfully
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: app
-
     steps:
-
       # Checkout Repository
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -44,6 +36,7 @@ jobs:
 
       # Build Docker Image
       - name: Build Docker Image
+        working-directory: app
         run: |
           docker build -t enterprise-devops-capstone:${{ github.sha }} .
 
@@ -51,16 +44,48 @@ jobs:
       - name: Tag Docker Image
         run: |
           docker tag enterprise-devops-capstone:${{ github.sha }} \
-          ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
+            ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest
 
-      # Push Docker Image to ECR
+      # Push Docker Image
       - name: Push Docker Image
         run: |
           docker push \
-          ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
+            ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest
 
-      # Deployment placeholder
-      - name: Deployment Status
+      # Update kubeconfig
+      - name: Update kubeconfig
         run: |
-          echo "Docker image pushed successfully."
-          echo "Deployment to Amazon EKS will be added in Phase 3."
+          aws eks update-kubeconfig \
+            --region ${{ secrets.AWS_REGION }} \
+            --name enterprise-eks
+
+      # Verify Cluster
+      - name: Verify Cluster
+        run: |
+          kubectl config current-context
+          kubectl get nodes
+
+      # Create Namespace
+      - name: Create Namespace
+        run: |
+          kubectl apply -f kubernetes/namespace.yaml
+
+      # Wait for Namespace
+      - name: Wait for Namespace
+        run: |
+          kubectl wait --for=jsonpath='{.status.phase}'=Active namespace/enterprise --timeout=30s
+
+      # Deploy Application
+      - name: Deploy Application
+        run: |
+          kubectl apply -f kubernetes/deployment.yaml
+
+      # Create Service
+      - name: Create Service
+        run: |
+          kubectl apply -f kubernetes/service.yaml
+
+      # Verify Rollout
+      - name: Verify Rollout
+        run: |
+          kubectl rollout status deployment/enterprise-app -n enterprise

@@ -1,0 +1,5 @@
+Multi-Stage Pipeline Definition
+
+A Multi-Stage Pipeline is a CI/CD pipeline where an application passes through multiple stages or environments (such as Development, Testing, Staging, and Production) in a defined sequence. Each stage performs specific tasks like building, testing, security scanning, or deployment before the application is promoted to the next stage.
+
+Only when a stage completes successfully does the pipeline continue to the next stage. If any stage fails, the pipeline stops, preventing faulty code from reaching production.

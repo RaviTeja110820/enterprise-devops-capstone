@@ -14,7 +14,7 @@ on:
 
     branches:
 
-      - feature/pipeline-debug
+      - feature/kubernetes
       - main
 
   pull_request:
