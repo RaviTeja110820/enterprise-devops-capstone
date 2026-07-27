@@ -1,0 +1,59 @@
+# Name of the GitHub Actions workflow
+name: Continuous Integration
+
+# Trigger conditions
+on:
+
+  # Trigger when code is pushed
+  push:
+
+    # Only for these branches
+    branches:
+      - develop
+      - main
+
+  # Trigger when Pull Request is created
+  pull_request:
+
+    branches:
+      - develop
+
+jobs:
+
+  build:
+
+    # Runner provided by GitHub
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+       working-directory: app
+
+    steps:
+
+      # Download repository source code
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Install NodeJS
+      - name: Setup NodeJS
+        uses: actions/setup-node@v4
+
+        with:
+
+          node-version: 20
+
+      # Install dependencies
+      - name: Install Packages
+
+        run: npm install
+
+      # Run unit tests
+      - name: Run Tests
+
+        run: npm test
+
+      # Build application
+      - name: Build Application
+
+        run: npm run build

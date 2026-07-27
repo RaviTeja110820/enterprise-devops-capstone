@@ -1,0 +1,181 @@
+# ==========================================================
+# GitHub Actions - Continuous Integration
+# ==========================================================
+
+name: Continuous Integration
+
+# ==========================================================
+# Workflow Triggers
+# ==========================================================
+
+on:
+
+  push:
+
+    branches:
+
+      - feature/kubernetes
+      - main
+
+  pull_request:
+
+    branches:
+
+      - develop
+
+# ==========================================================
+# Jobs
+# ==========================================================
+
+jobs:
+
+  build:
+
+    name: Build, Test & Security Scan
+
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: app
+
+    steps:
+
+    #########################################################
+    # Checkout Repository
+    #########################################################
+
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    #########################################################
+    # Setup NodeJS
+    #########################################################
+
+    - name: Setup NodeJS
+      uses: actions/setup-node@v4
+
+      with:
+        node-version: 20
+        cache: npm
+        cache-dependency-path: app/package-lock.json
+
+    #########################################################
+    # Install Dependencies
+    #########################################################
+
+    - name: Install Packages
+      run: npm install
+
+    #########################################################
+    # Run Tests with Coverage
+    #########################################################
+
+    - name: Run Tests
+
+      run: npm run test:coverage
+
+    #########################################################
+    # Build Application
+    #########################################################
+
+    - name: Build Application
+
+      run: npm run build
+
+    #########################################################
+    # Dependency Scan
+    #########################################################
+
+    - name: NPM Audit
+
+      run: npm audit
+
+    #########################################################
+    # SonarCloud Scan
+    #########################################################
+
+    - name: SonarCloud Scan
+
+      uses: SonarSource/sonarqube-scan-action@v5
+
+      env:
+
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      with:
+
+        args: >
+          -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
+          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+          -Dsonar.sources=.
+          -Dsonar.tests=.
+          -Dsonar.test.inclusions=**/*.test.js
+          -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+          -Dsonar.sourceEncoding=UTF-8
+
+    #########################################################
+    # Trivy Filesystem Scan
+    #########################################################
+
+    - name: Trivy Filesystem Scan
+
+      uses: aquasecurity/trivy-action@master
+
+      with:
+
+        scan-type: fs
+        scan-ref: app
+
+        format: table
+
+        severity: HIGH,CRITICAL
+
+        ignore-unfixed: true
+
+        exit-code: "1"
+
+    #########################################################
+    # Build Docker Image
+    #########################################################
+
+    - name: Build Docker Image
+
+      run: |
+
+        docker build \
+          -t enterprise-devops-capstone:${{ github.sha }} .
+
+    #########################################################
+    # Trivy Docker Image Scan
+    #########################################################
+
+    - name: Trivy Docker Image Scan
+
+      uses: aquasecurity/trivy-action@master
+
+      with:
+
+        image-ref: enterprise-devops-capstone:${{ github.sha }}
+
+        format: table
+
+        severity: CRITICAL
+
+        ignore-unfixed: true
+
+        exit-code: "1"
+
+    #########################################################
+    # Upload Build Artifact
+    #########################################################
+
+    - name: Upload Build Artifact
+
+      uses: actions/upload-artifact@v4
+
+      with:
+
+        name: application
+
+        path: app/

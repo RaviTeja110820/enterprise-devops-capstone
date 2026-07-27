@@ -1,0 +1,11 @@
+apiVersion: v2
+
+name: enterprise-app
+
+description: Enterprise DevOps Capstone Helm Chart
+
+type: application
+
+version: 0.1.0
+
+appVersion: "1.0.0"
